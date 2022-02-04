@@ -1,0 +1,45 @@
+{
+	"version": 1,
+	"disable_existing_loggers": false,
+	"root": {
+	    "level": "DEBUG",
+	    "handlers": ["consoleHandler"],
+	    "propagate": false 
+	},
+	"loggers": {
+	    "aiohttp.access": {
+		"level": "INFO",
+		"handlers": ["accessLogConsoleHandler"],
+		"propagate": false
+	    }
+	},
+	"handlers": {
+	    "consoleHandler": {
+		"level": "DEBUG",
+		"class": "logging.StreamHandler",
+		"formatter": "defaultFormatter",
+		"stream": "ext://sys.stdout"
+	    },
+	    "accessLogConsoleHandler": {
+		"level": "DEBUG",
+		"class": "logging.StreamHandler",
+		"formatter": "accessLogFormatter",
+		"stream": "ext://sys.stdout"
+
+	    },
+	    "appConsoleHandler": {
+		"level": "DEBUG",
+		"class": "logging.StreamHandler",
+		"formatter": "defaultFormatter",
+		"stream": "ext://sys.stdout"
+	    }
+	},
+	"formatters": {
+	    "defaultFormatter": {
+		"format": "%(asctime)s - %(levelname)s - %(name)s - %(message)s"
+	    },
+	    "accessLogFormatter": {
+		"format": "%(first_request_line)s: %(msecs)s"
+	    }
+	}
+}
