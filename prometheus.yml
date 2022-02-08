@@ -20,4 +20,4 @@ scrape_configs:
   follow_redirects: true
   static_configs:
   - targets:
-    - localhost:8000
+    - 178.154.200.52:8000

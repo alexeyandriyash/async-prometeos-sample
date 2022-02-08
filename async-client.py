@@ -5,6 +5,9 @@ from prometheus_client import Summary
 from prometheus_async import aio
 from prometheus_async.aio import time as metrics
 from prometheus_client import Histogram
+from prometheus_client import Counter
+
+
 
 import random
 import time
@@ -31,8 +34,10 @@ foo_summary = Summary('foo_summary', 'foo summary')
 #FOO_SUMMARY = Summary('request_size_bytes', 'foo summary')
 #BAR_HISTOGRAM = Histogram('request_latency_seconds', 'bar histogram')
 
-#BAR_HISTOGRAM = Histogram('request_processing_seconds', 'bar histogram')
+bar_histogram = Histogram(name = 'bar_histogram', documentation = 'bar histogram')
 #BAR_HISTOGRAM.observe(0.1)
+bazz_counter = Counter('bazz_counter', 'Description of counter')
+bazz_counter.inc()
 
 routes = web.RouteTableDef()
 
@@ -49,7 +54,7 @@ async def foo(request: web.Request) -> web.Response:
 
 
 @routes.get('/bar')
-#@metrics(BAR_HISTOGRAM)
+@metrics(bar_histogram)
 async def bar(request: web.Request) -> web.Response:
     latency = random.random()
     text="bar: {}".format(latency)
@@ -58,6 +63,17 @@ async def bar(request: web.Request) -> web.Response:
     await asyncio.sleep(latency)
     
     return web.Response(text=text)
+
+@routes.get('/bazz')
+async def bar(request: web.Request) -> web.Response:
+    latency = random.random()
+    text="bazz: {}".format(latency)
+    print(text)
+    bazz_counter.inc()
+    await asyncio.sleep(latency)
+
+    return web.Response(text=text)
+
 
 
 app = web.Application()
