@@ -52,7 +52,7 @@ async def bar(request: web.Request) -> web.Response:
 
 @routes.get('/bazz')
 async def bar(request: web.Request) -> web.Response:
-    return await base_handler('/bazz', requestw)
+    return await base_handler('/bazz', request)
 
 
 @routes.get('/')
