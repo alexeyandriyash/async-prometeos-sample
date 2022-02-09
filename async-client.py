@@ -1,12 +1,6 @@
 from aiohttp import web
 import asyncio
 
-from prometheus_client import Summary
-from prometheus_async import aio
-from prometheus_async.aio import time as metrics
-from prometheus_client import Histogram
-from prometheus_client import Counter
-
 import random
 import time
 
@@ -17,42 +11,35 @@ import logging
 import logging.config
 import json
 
-loggingConfigFileName='/app/loggingConfig.json'
-loggingConfigFile = open(loggingConfigFileName)
-loggingConfig = json.load(loggingConfigFile)
+from prometheus_client import Summary
+from prometheus_async import aio
+from prometheus_async.aio import time as metrics
+from prometheus_client import Histogram
+from prometheus_client import Counter
 
-logging.config.dictConfig(loggingConfig)
-logging.basicConfig(level=logging.DEBUG)
 
-# Create a metric to track time spent and requests made.
-#FOO_SUMMARY = Summary('request_processing_seconds', 'foo summary')
-foo_summary = Summary('foo_summary', 'foo summary')
-#FOO_SUMMARY.observe(0.5)
-#FOO_SUMMARY = Summary('request_size_bytes', 'foo summary')
-#BAR_HISTOGRAM = Histogram('request_latency_seconds', 'bar histogram')
+summary = Summary('summary_metric', 'Some description of summary')
+histogram = Histogram(name = 'histogram_metric', documentation = 'Some description of histogram')
+counter = Counter('counter_metric', 'Some description of of counter')
 
-bar_histogram = Histogram(name = 'bar_histogram', documentation = 'bar histogram')
-#BAR_HISTOGRAM.observe(0.1)
-bazz_counter = Counter('bazz_counter', 'Description of counter')
-bazz_counter.inc()
 routes = web.RouteTableDef()
 
-
-@routes.get('/foo')
-@metrics(foo_summary)
+@routes.get('/summary')
+@metrics(summary)
 async def foo(request: web.Request) -> web.Response:
-    return await base_handler('/foo', request)
+    return await base_handler('/summary', request)
 
 
-@routes.get('/bar')
-@metrics(bar_histogram)
+@routes.get('/histogram')
+@metrics(histogram)
 async def bar(request: web.Request) -> web.Response:
-    return await base_handler('/bar', request)
+    return await base_handler('/histogram', request)
 
 
-@routes.get('/bazz')
-async def bar(request: web.Request) -> web.Response:
-    return await base_handler('/bazz', request)
+@routes.get('/counter')
+async def bazz(request: web.Request) -> web.Response:
+    counter.inc()
+    return await base_handler('/counter', request)
 
 
 @routes.get('/')
@@ -99,6 +86,13 @@ async def base_handler(route_name: str, request: web.Request) -> web.Response:
     return web.Response(text=result,
                         content_type='text/html')
 
+
+loggingConfigFileName='/app/loggingConfig.json'
+loggingConfigFile = open(loggingConfigFileName)
+loggingConfig = json.load(loggingConfigFile)
+
+logging.config.dictConfig(loggingConfig)
+logging.basicConfig(level=logging.DEBUG)
 
 app = web.Application()
 app.add_routes(routes)
